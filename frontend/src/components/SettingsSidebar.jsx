@@ -65,12 +65,12 @@ export default function SettingsSidebar({ provider, setProvider, model, setModel
 
   return (
     <div className="settings-sidebar">
-      <button onClick={toggleDrawer} className="drawer-toggle-button">
-        {isDrawerOpen ? 'Close Settings' : 'Open Settings'}
+      <button onClick={toggleDrawer} className="drawer-toggle-button" aria-label="Toggle Settings Drawer">
+        <span className="toggle-icon">⚙️</span>
+        SETTINGS
       </button>
       {isDrawerOpen && (
         <div className="settings-drawer">
-          <h2>Settings</h2>
           <div className="settings-group">
             <label>Mode:</label>
             <select value={mode} onChange={(e) => setMode(e.target.value)}>

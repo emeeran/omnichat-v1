@@ -35,10 +35,15 @@ export default function ProviderModelSelector({
         const modelsData = await fetchModels(provider);
         if (modelsData && modelsData.length > 0) {
           setModels(modelsData);
+          // Set default model for OpenAI if no model is selected
+          if (provider.toLowerCase() === 'openai' && !model) {
+            onModelChange('gpt-4.1-nano-2025-04-14');
+          }
         } else {
           // Fallback to static data based on provider if API call fails or returns empty
           const fallbackModels = {
             'openai': [
+              { id: 'gpt-4.1-nano-2025-04-14', name: 'GPT-4.1 Nano (2025-04-14)' },
               { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano' },
               { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
               { id: 'gpt-4', name: 'GPT-4' }
@@ -52,9 +57,9 @@ export default function ProviderModelSelector({
             ]
           };
           setModels(fallbackModels[provider.toLowerCase()] || []);
-          // Set default model for OpenAI
+          // Set default model for OpenAI if no model is selected
           if (provider.toLowerCase() === 'openai' && !model) {
-            onModelChange('gpt-4.1-nano');
+            onModelChange('gpt-4.1-nano-2025-04-14');
           }
         }
         setLoading(false);
@@ -63,33 +68,39 @@ export default function ProviderModelSelector({
       }
     };
     loadModels();
-  }, [provider]);
+  }, [provider, model, onModelChange]);
 
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-      <select
-        value={provider || ''}
-        onChange={e => onProviderChange(e.target.value)}
-      >
-        <option value='' disabled>Select a Provider</option>
-        {providers.map(p => (
-          <option key={p.id} value={p.id}>{p.name}</option>
-        ))}
-      </select>
-      <select
-        value={model || ''}
-        onChange={e => onModelChange(e.target.value)}
-        disabled={!provider || loading}
-      >
-        <option value='' disabled>
-          {loading ? 'Loading models...' : provider ? 'Select a Model' : 'Select Provider First'}
-        </option>
-        {models.map(m => (
-          <option key={m.id || m} value={m.id || m}>
-            {m.name || m.id || m}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <label style={{ fontSize: '0.95rem', fontWeight: '500' }}>Provider:</label>
+        <select
+          value={provider || ''}
+          onChange={e => onProviderChange(e.target.value)}
+        >
+          <option value='' disabled>Select a Provider</option>
+          {providers.map(p => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <label style={{ fontSize: '0.95rem', fontWeight: '500' }}>Model:</label>
+        <select
+          value={model || ''}
+          onChange={e => onModelChange(e.target.value)}
+          disabled={!provider || loading}
+        >
+          <option value='' disabled>
+            {loading ? 'Loading models...' : provider ? 'Select a Model' : 'Select Provider First'}
           </option>
-        ))}
-      </select>
+          {models.map(m => (
+            <option key={m.id || m} value={m.id || m}>
+              {m.name || m.id || m}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }
