@@ -1,0 +1,23 @@
+API Key Setup Instructions for AI Providers
+
+I've noticed that the API keys for OpenAI and Anthropic are not set in your '.env' file, which is causing the error "Provider not configured. Please ensure an API key is set up for the selected provider in the backend."
+
+To resolve this issue, please follow these steps:
+
+1. Open the '.env' file located at the root of your project directory (/home/em/code/wip/ai_assistant/.env).
+2. Locate the lines for the following providers:
+   - OPENAI_API_KEY=
+   - ANTHROPIC_API_KEY=
+3. Update these lines with your respective API keys. For example:
+   - OPENAI_API_KEY=your_openai_api_key_here
+   - ANTHROPIC_API_KEY=your_anthropic_api_key_here
+4. Save the '.env' file.
+5. Restart your backend application to ensure the new environment variables are loaded.
+
+Note: The API key for Google AI (Gemini) is already set, so no action is needed for that provider.
+
+If you do not have API keys for OpenAI or Anthropic, you will need to obtain them from their respective platforms:
+- OpenAI: https://platform.openai.com/account/api-keys
+- Anthropic: https://console.anthropic.com/settings/keys
+
+After setting the API keys, the error should be resolved for the providers you wish to use.
