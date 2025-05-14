@@ -129,10 +129,7 @@ const ChatWindow = ({ provider, model, persona }) => {
   return (
     <div className="chat-window">
       <div className="chat-header">
-        <h2>💬 GenX Chat</h2>
-        <p className="chat-config">
-          Provider: {provider || 'N/A'} | Model: {model || 'N/A'} | Persona: {persona || 'N/A'}
-        </p>
+        <h2>OmniChat-v1</h2>
       </div>
       <div className="chat-messages">
         {messages.length === 0 ? (
