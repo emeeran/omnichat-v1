@@ -80,6 +80,19 @@ export default function SettingsSidebar({ provider, setProvider, model, setModel
     e.preventDefault();
   };
 
+  // Load default settings on component mount
+  React.useEffect(() => {
+    const savedSettings = JSON.parse(localStorage.getItem('defaultSettings') || '{}');
+    if (savedSettings.provider) setProvider(savedSettings.provider);
+    if (savedSettings.model) setModel(savedSettings.model);
+    if (savedSettings.persona) setPersona(savedSettings.persona);
+    if (savedSettings.mode) setMode(savedSettings.mode);
+    if (savedSettings.temp !== undefined) setTemp(savedSettings.temp);
+    if (savedSettings.maxTemp !== undefined) setMaxTemp(savedSettings.maxTemp);
+    if (savedSettings.audioResponse !== undefined) setAudioResponse(savedSettings.audioResponse);
+    if (savedSettings.darkMode !== undefined && darkMode !== savedSettings.darkMode) toggleDarkMode();
+  }, [darkMode, setProvider, setModel, setPersona, setMode, setTemp, setMaxTemp, setAudioResponse, toggleDarkMode]);
+
   return (
     <div className="settings-sidebar">
       <div className="settings-drawer compact-drawer always-open">
@@ -184,12 +197,12 @@ export default function SettingsSidebar({ provider, setProvider, model, setModel
               <div className="settings-group chat-management compact-group">
                 <label>Chat Management</label>
                 <div className="chat-buttons compact-buttons">
-                  <button onClick={onNewChat} className="chat-action-btn">New</button>
-                  <button onClick={onRetry} className="chat-action-btn">Retry</button>
-                  <button onClick={onSaveChat} className="chat-action-btn">Save</button>
-                  <button onClick={onLoadChat} className="chat-action-btn">Load</button>
-                  <button onClick={onDeleteChat} className="chat-action-btn">Delete</button>
-                  <button onClick={onExportChat} className="chat-action-btn">Export</button>
+                  <button onClick={onNewChat} className="chat-action-btn" aria-label="Start a new chat">New</button>
+                  <button onClick={onRetry} className="chat-action-btn" aria-label="Retry the last action">Retry</button>
+                  <button onClick={onSaveChat} className="chat-action-btn" aria-label="Save current chat">Save</button>
+                  <button onClick={onLoadChat} className="chat-action-btn" aria-label="Load a saved chat">Load</button>
+                  <button onClick={onDeleteChat} className="chat-action-btn" aria-label="Delete a saved chat">Delete</button>
+                  <button onClick={onExportChat} className="chat-action-btn" aria-label="Export current chat">Export</button>
                 </div>
               </div>
             </div>
@@ -237,23 +250,25 @@ export default function SettingsSidebar({ provider, setProvider, model, setModel
                   checked={audioResponse}
                   onChange={() => setAudioResponse(!audioResponse)}
                 />
+                <button onClick={() => {
+                  const settings = {
+                    provider,
+                    model,
+                    persona,
+                    mode,
+                    temp,
+                    maxTemp,
+                    audioResponse,
+                    darkMode
+                  };
+                  localStorage.setItem('defaultSettings', JSON.stringify(settings));
+                  alert('Settings saved as default!');
+                }} className="save-default-btn" aria-label="Save current settings as default" style={{ marginLeft: '10px' }}>Save as Default</button>
+                <span style={{ fontSize: '0.8em', color: '#888', marginLeft: '5px' }}>(Saves current settings for future sessions)</span>
               </div>
             </div>
           )}
-          {activeTab === 'appearance' && (
-            <div className="settings-category" role="tabpanel" id="appearance-panel" aria-labelledby="appearance-tab">
-              <h3>Appearance</h3>
-              <div className="settings-group compact-group">
-                <label htmlFor="dark-mode-toggle">Dark Mode</label>
-                <input
-                  id="dark-mode-toggle"
-                  type="checkbox"
-                  checked={darkMode}
-                  onChange={toggleDarkMode}
-                />
-              </div>
-            </div>
-          )}
+          {/* Appearance tab content removed as per request */}
         </div>
       </div>
       <div className="settings-footer">
