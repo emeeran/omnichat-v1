@@ -16,16 +16,18 @@ async function registerProvider(providerId, apiKey) {
   }
 }
 
-export default function SettingsSidebar({ provider, setProvider, model, setModel, persona, setPersona, onRetry, onNewChat, onSaveChat, onLoadChat, onDeleteChat, onExportChat, darkMode, toggleDarkMode }) {
+export default function SettingsSidebar({ provider, setProvider, model, setModel, persona, setPersona, onRetry, onNewChat, onSaveChat, onLoadChat, onDeleteChat, onExportChat, darkMode, toggleDarkMode, textSize, setTextSize, themeColor, setThemeColor }) {
   const [mode, setMode] = useState('chat');
   const [maxTemp, setMaxTemp] = useState(1.0);
   const [temp, setTemp] = useState(0.7);
   const [audioResponse, setAudioResponse] = useState(false);
+  const [localTextSize, setLocalTextSize] = useState('Medium');
+  const [localThemeColor, setLocalThemeColor] = useState('Default');
   const [apiKey, setApiKey] = useState('');
   const [apiKeyError, setApiKeyError] = useState('');
   const [apiKeySuccess, setApiKeySuccess] = useState(false);
 
-  const handleProviderChange = (value) => {
+const handleProviderChange = (value) => {
     setProvider(value);
     setModel(''); // Reset model when provider changes
   };
@@ -91,24 +93,20 @@ export default function SettingsSidebar({ provider, setProvider, model, setModel
     if (savedSettings.maxTemp !== undefined) setMaxTemp(savedSettings.maxTemp);
     if (savedSettings.audioResponse !== undefined) setAudioResponse(savedSettings.audioResponse);
     if (savedSettings.darkMode !== undefined && darkMode !== savedSettings.darkMode) toggleDarkMode();
-  }, [darkMode, setProvider, setModel, setPersona, setMode, setTemp, setMaxTemp, setAudioResponse, toggleDarkMode]);
+    if (savedSettings.textSize) {
+      setLocalTextSize(savedSettings.textSize);
+      setTextSize(savedSettings.textSize);
+    }
+    if (savedSettings.themeColor) {
+      setLocalThemeColor(savedSettings.themeColor);
+      setThemeColor(savedSettings.themeColor);
+    }
+  }, [darkMode, setProvider, setModel, setPersona, toggleDarkMode, setTextSize, setThemeColor]);
 
   return (
     <div className="settings-sidebar">
       <div className="settings-drawer compact-drawer always-open">
         <div className="settings-tabs" role="tablist">
-          <button
-            className={`tab-button ${activeTab === 'provider' ? 'active' : ''}`}
-            onClick={() => setActiveTab('provider')}
-            onKeyDown={(e) => handleTabKeyDown(e, 'provider')}
-            aria-selected={activeTab === 'provider'}
-            role="tab"
-            id="provider-tab"
-            aria-controls="provider-panel"
-            tabIndex={activeTab === 'provider' ? 0 : -1}
-          >
-            Provider
-          </button>
           <button
             className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
             onClick={() => setActiveTab('chat')}
@@ -194,17 +192,6 @@ export default function SettingsSidebar({ provider, setProvider, model, setModel
                   <option value="Friendly">Friendly</option>
                 </select>
               </div>
-              <div className="settings-group chat-management compact-group">
-                <label>Chat Management</label>
-                <div className="chat-buttons compact-buttons">
-                  <button onClick={onNewChat} className="chat-action-btn" aria-label="Start a new chat">New</button>
-                  <button onClick={onRetry} className="chat-action-btn" aria-label="Retry the last action">Retry</button>
-                  <button onClick={onSaveChat} className="chat-action-btn" aria-label="Save current chat">Save</button>
-                  <button onClick={onLoadChat} className="chat-action-btn" aria-label="Load a saved chat">Load</button>
-                  <button onClick={onDeleteChat} className="chat-action-btn" aria-label="Delete a saved chat">Delete</button>
-                  <button onClick={onExportChat} className="chat-action-btn" aria-label="Export current chat">Export</button>
-                </div>
-              </div>
             </div>
           )}
           {activeTab === 'advanced' && (
@@ -250,6 +237,10 @@ export default function SettingsSidebar({ provider, setProvider, model, setModel
                   checked={audioResponse}
                   onChange={() => setAudioResponse(!audioResponse)}
                 />
+                <div style={{ fontSize: '0.8em', color: '#888', marginTop: '5px' }}>Enable audio playback for AI responses</div>
+              </div>
+              <div className="settings-group compact-group">
+                <label>Save Settings</label>
                 <button onClick={() => {
                   const settings = {
                     provider,
@@ -259,20 +250,71 @@ export default function SettingsSidebar({ provider, setProvider, model, setModel
                     temp,
                     maxTemp,
                     audioResponse,
-                    darkMode
+                    darkMode,
+                    textSize: localTextSize,
+                    themeColor: localThemeColor
                   };
                   localStorage.setItem('defaultSettings', JSON.stringify(settings));
                   alert('Settings saved as default!');
-                }} className="save-default-btn" aria-label="Save current settings as default" style={{ marginLeft: '10px' }}>Save as Default</button>
-                <span style={{ fontSize: '0.8em', color: '#888', marginLeft: '5px' }}>(Saves current settings for future sessions)</span>
+                }} className="save-default-btn" aria-label="Save current settings as default" style={{ marginTop: '5px', width: '100%', padding: '8px' }}>Save as Default</button>
+                <div style={{ fontSize: '0.8em', color: '#888', marginTop: '5px' }}>Saves current settings for future sessions</div>
               </div>
             </div>
           )}
-          {/* Appearance tab content removed as per request */}
+          {activeTab === 'appearance' && (
+            <div className="settings-category" role="tabpanel" id="appearance-panel" aria-labelledby="appearance-tab">
+              <h3>Appearance Settings</h3>
+              <div className="settings-group compact-group">
+                <label>Theme Mode</label>
+                <button onClick={toggleDarkMode} className="theme-toggle-btn" aria-label="Toggle dark/light mode">
+                  {darkMode ? 'Light Mode' : 'Dark Mode'}
+                </button>
+                <div style={{ fontSize: '0.8em', color: '#888', marginTop: '5px' }}>
+                  Switch to {darkMode ? 'light' : 'dark'} mode for a different visual experience
+                </div>
+              </div>
+              <div className="settings-group compact-group">
+                <label htmlFor="text-size-select">Text Size</label>
+                <select id="text-size-select" value={localTextSize} onChange={e => {
+                  setLocalTextSize(e.target.value);
+                  setTextSize(e.target.value);
+                }}>
+                  <option value="Small">Small</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Large">Large</option>
+                </select>
+                <div style={{ fontSize: '0.8em', color: '#888', marginTop: '5px' }}>
+                  Adjust the size of text in the application
+                </div>
+              </div>
+              <div className="settings-group compact-group">
+                <label htmlFor="theme-color-select">Theme Color</label>
+                <select id="theme-color-select" value={localThemeColor} onChange={e => {
+                  setLocalThemeColor(e.target.value);
+                  setThemeColor(e.target.value);
+                }}>
+                  <option value="Default">Default (Blue)</option>
+                  <option value="Green">Green</option>
+                  <option value="Purple">Purple</option>
+                  <option value="Orange">Orange</option>
+                </select>
+                <div style={{ fontSize: '0.8em', color: '#888', marginTop: '5px' }}>
+                  Choose a primary color theme for the application
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div className="settings-footer">
-        {provider && model ? `${provider} | ${model}` : ''}
+        <div className="chat-management-buttons">
+          <button onClick={onNewChat} className="chat-action-btn" aria-label="Start a new chat">New</button>
+          <button onClick={onRetry} className="chat-action-btn" aria-label="Retry the last action">Retry</button>
+          <button onClick={onSaveChat} className="chat-action-btn" aria-label="Save current chat">Save</button>
+          <button onClick={onLoadChat} className="chat-action-btn" aria-label="Load a saved chat">Load</button>
+          <button onClick={onDeleteChat} className="chat-action-btn" aria-label="Delete a saved chat">Delete</button>
+          <button onClick={onExportChat} className="chat-action-btn" aria-label="Export current chat">Export</button>
+        </div>
       </div>
     </div>
   );

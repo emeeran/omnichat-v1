@@ -2,9 +2,84 @@ import React, { useState } from 'react';
 import '@styles/ChatWindow.css';
 import '@styles/Markdown.css';
 
-const ChatWindow = ({ provider, model, persona }) => {
+const ChatWindow = ({ provider, model, persona, chatHistory, setChatHistory, retryTrigger, textSize, themeColor }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+
+  // Sync messages with chatHistory from parent
+  React.useEffect(() => {
+    setMessages(chatHistory);
+  }, [chatHistory]);
+
+  // Handle retry trigger
+  React.useEffect(() => {
+    if (retryTrigger > 0) {
+      const lastUserQuery = [...messages].reverse().find(msg => msg.sender === 'user');
+      if (lastUserQuery) {
+        handleRetryMessage(lastUserQuery);
+      }
+    }
+  }, [retryTrigger]);
+
+  const handleRetryMessage = async (query) => {
+    const retryMessage = {
+      id: Date.now(),
+      text: query.text + " (Retry)",
+      sender: 'user',
+      timestamp: new Date().toLocaleTimeString(),
+      isRetry: true
+    };
+    const updatedMessages = [...messages, retryMessage];
+    setMessages(updatedMessages);
+    setChatHistory(updatedMessages);
+    
+    // Send message to backend for AI response
+    try {
+      const { sendMessage } = await import('../services/api.js');
+      const response = await sendMessage({
+        provider: provider,
+        model: model,
+        messages: updatedMessages.map(msg => ({ role: msg.sender === 'user' ? 'user' : 'assistant', content: msg.text })),
+        options: {}
+      });
+      if (response.error) {
+        let errorText = `Error: ${response.error}`;
+        if (response.error.includes("Provider not configured")) {
+          errorText = "Error: Provider not configured. Please ensure an API key is set up for the selected provider in the backend.";
+        }
+        const errorResponse = {
+          id: Date.now() + 1,
+          text: errorText,
+          sender: 'ai',
+          timestamp: new Date().toLocaleTimeString(),
+        };
+        const newMessages = [...updatedMessages, errorResponse];
+        setMessages(newMessages);
+        setChatHistory(newMessages);
+      } else {
+        const aiResponse = {
+          id: Date.now() + 1,
+          text: response.content || 'No response content',
+          sender: 'ai',
+          timestamp: new Date().toLocaleTimeString(),
+          isRetryResponse: true
+        };
+        const newMessages = [...updatedMessages, aiResponse];
+        setMessages(newMessages);
+        setChatHistory(newMessages);
+      }
+    } catch (error) {
+      const errorResponse = {
+        id: Date.now() + 1,
+        text: `Error sending message: ${error.message}`,
+        sender: 'ai',
+        timestamp: new Date().toLocaleTimeString(),
+      };
+      const newMessages = [...updatedMessages, errorResponse];
+      setMessages(newMessages);
+      setChatHistory(newMessages);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (input.trim()) {
@@ -14,7 +89,9 @@ const ChatWindow = ({ provider, model, persona }) => {
         sender: 'user',
         timestamp: new Date().toLocaleTimeString(),
       };
-      setMessages([...messages, newMessage]);
+      const updatedMessages = [...messages, newMessage];
+      setMessages(updatedMessages);
+      setChatHistory(updatedMessages);
       setInput('');
       
       // Send message to backend for AI response
@@ -37,7 +114,9 @@ const ChatWindow = ({ provider, model, persona }) => {
             sender: 'ai',
             timestamp: new Date().toLocaleTimeString(),
           };
-          setMessages(prevMessages => [...prevMessages, errorResponse]);
+          const updatedMessages = [...messages, errorResponse];
+          setMessages(updatedMessages);
+          setChatHistory(updatedMessages);
         } else {
           const aiResponse = {
             id: Date.now() + 1,
@@ -45,7 +124,9 @@ const ChatWindow = ({ provider, model, persona }) => {
             sender: 'ai',
             timestamp: new Date().toLocaleTimeString(),
           };
-          setMessages(prevMessages => [...prevMessages, aiResponse]);
+          const updatedMessages = [...messages, aiResponse];
+          setMessages(updatedMessages);
+          setChatHistory(updatedMessages);
         }
       } catch (error) {
         const errorResponse = {
@@ -54,7 +135,9 @@ const ChatWindow = ({ provider, model, persona }) => {
           sender: 'ai',
           timestamp: new Date().toLocaleTimeString(),
         };
-        setMessages(prevMessages => [...prevMessages, errorResponse]);
+        const updatedMessages = [...messages, errorResponse];
+        setMessages(updatedMessages);
+        setChatHistory(updatedMessages);
       }
     }
   };
@@ -126,17 +209,30 @@ const ChatWindow = ({ provider, model, persona }) => {
     return html;
   };
 
+  // Determine text size based on the setting
+  const textSizeStyle = {
+    fontSize: textSize === 'Small' ? '0.8em' : textSize === 'Large' ? '1.2em' : '1em'
+  };
+
+  // Determine theme color based on the setting
+  const themeColorStyle = {
+    color: themeColor === 'Green' ? '#00BFA5' : themeColor === 'Purple' ? '#9C27B0' : themeColor === 'Orange' ? '#FF9800' : '#3B82F6'
+  };
+
   return (
-    <div className="chat-window">
+    <div className="chat-window" style={textSizeStyle}>
       <div className="chat-header">
-        <h2>OmniChat-v1</h2>
+        <h2 style={themeColorStyle}>OmniChat-v1</h2>
+        <div className="provider-model-info" style={themeColorStyle}>
+          {provider && model ? `${provider} | ${model}` : 'No provider/model selected'}
+        </div>
       </div>
       <div className="chat-messages">
         {messages.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#888' }}>No messages yet. Start chatting!</p>
         ) : (
           messages.map(message => (
-            <div key={message.id} className={`message ${message.sender}`}>
+            <div key={message.id} className={`message ${message.sender} ${message.isRetry ? 'retry-message' : ''} ${message.isRetryResponse ? 'retry-response' : ''}`}>
               <div className="message-content">
                 {message.sender === 'ai' ? (
                   <div className="markdown-content">

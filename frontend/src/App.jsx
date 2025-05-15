@@ -10,21 +10,30 @@ export default function App() {
   const [persona, setPersona] = useState('Default');
   const [chatHistory, setChatHistory] = useState([]);
   const [savedChats, setSavedChats] = useState([]);
+  const [textSize, setTextSize] = useState('Medium');
+  const [themeColor, setThemeColor] = useState('Default');
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.body.className = darkMode ? 'light-mode' : 'dark-mode';
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    document.body.className = newDarkMode ? 'dark-mode' : 'light-mode';
   };
 
+  const [retryTrigger, setRetryTrigger] = useState(0);
+
   const handleRetry = () => {
-    // Retry the last query with a different provider/model
+    // Retry the last user query with the current model
     if (chatHistory.length > 0) {
-      const lastQuery = chatHistory[chatHistory.length - 1];
-      // Placeholder: Logic to retry with different provider/model
-      alert('Retrying last query with different provider/model. This functionality needs backend integration.');
-      setChatHistory([...chatHistory, { ...lastQuery, retry: true }]);
+      // Find the last user message
+      const lastUserQuery = [...chatHistory].reverse().find(msg => msg.sender === 'user');
+      if (lastUserQuery) {
+        alert(`Retrying last query: "${lastUserQuery.text.substring(0, 30)}..." with model: ${model}`);
+        setRetryTrigger(prev => prev + 1); // Trigger retry in ChatWindow
+      } else {
+        alert('No user query found to retry. Please ensure you have sent a message.');
+      }
     } else {
-      alert('No previous query to retry.');
+      alert('No chat history to retry. Please send a message first.');
     }
   };
 
@@ -80,24 +89,53 @@ export default function App() {
       alert('No chat history to export.');
       return;
     }
-    const format = prompt('Enter export format (md, pdf, json, txt):');
+    const format = prompt('Enter export format (txt, json):');
     if (format) {
-      // Placeholder: Logic to export chat history in the selected format
-      alert(`Exporting chat history to ${format}. This functionality needs backend integration or file download implementation.`);
+      let content = '';
+      let mimeType = '';
+      if (format === 'txt') {
+        content = chatHistory.map(msg => `${msg.sender}: ${msg.text}`).join('\n');
+        mimeType = 'text/plain';
+      } else if (format === 'json') {
+        content = JSON.stringify(chatHistory, null, 2);
+        mimeType = 'application/json';
+      } else {
+        alert('Unsupported format. Use txt or json.');
+        return;
+      }
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `chat_history.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      alert(`Chat history exported as ${format}.`);
     }
   };
+
+  // Apply theme color as a CSS variable
+  const themeColorValue = themeColor === 'Green' ? '#00BFA5' : themeColor === 'Purple' ? '#9C27B0' : themeColor === 'Orange' ? '#FF9800' : '#3B82F6';
+  document.documentElement.style.setProperty('--primary-color', themeColorValue);
+  document.documentElement.style.setProperty('--primary-dark', themeColor === 'Green' ? '#008C7A' : themeColor === 'Purple' ? '#7E1F86' : themeColor === 'Orange' ? '#E65100' : '#2563EB');
+
+  // Apply text size as a CSS variable
+  const textSizeValue = textSize === 'Small' ? '0.8em' : textSize === 'Large' ? '1.2em' : '1em';
+  document.documentElement.style.setProperty('--base-font-size', textSizeValue);
 
   return (
     <div className={`app-container ${darkMode ? 'dark-mode' : 'light-mode'}`}>
       <main className="app-main">
         <div className="content-wrapper">
-          <SettingsSidebar 
-            provider={provider} 
-            setProvider={setProvider} 
-            model={model} 
-            setModel={setModel} 
-            persona={persona} 
-            setPersona={setPersona} 
+          <SettingsSidebar
+            provider={provider}
+            setProvider={setProvider}
+            model={model}
+            setModel={setModel}
+            persona={persona}
+            setPersona={setPersona}
             onRetry={handleRetry}
             onNewChat={handleNewChat}
             onSaveChat={handleSaveChat}
@@ -106,8 +144,12 @@ export default function App() {
             onExportChat={handleExportChat}
             darkMode={darkMode}
             toggleDarkMode={toggleDarkMode}
+            textSize={textSize}
+            setTextSize={setTextSize}
+            themeColor={themeColor}
+            setThemeColor={setThemeColor}
           />
-          <ChatWindow provider={provider} model={model} persona={persona} chatHistory={chatHistory} setChatHistory={setChatHistory} />
+          <ChatWindow provider={provider} model={model} persona={persona} chatHistory={chatHistory} setChatHistory={setChatHistory} retryTrigger={retryTrigger} textSize={textSize} themeColor={themeColor} />
         </div>
       </main>
     </div>
