@@ -117,7 +117,7 @@ const handleProviderChange = (value) => {
             aria-controls="provider-panel"
             tabIndex={activeTab === 'provider' ? 0 : -1}
           >
-            Provider
+            🌐
           </button>
           <button
             className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
@@ -129,7 +129,7 @@ const handleProviderChange = (value) => {
             aria-controls="chat-panel"
             tabIndex={activeTab === 'chat' ? 0 : -1}
           >
-            Chat
+            💬
           </button>
           <button
             className={`tab-button ${activeTab === 'advanced' ? 'active' : ''}`}
@@ -141,7 +141,7 @@ const handleProviderChange = (value) => {
             aria-controls="advanced-panel"
             tabIndex={activeTab === 'advanced' ? 0 : -1}
           >
-            Advanced
+            ⚙️
           </button>
           <button
             className={`tab-button ${activeTab === 'appearance' ? 'active' : ''}`}
@@ -153,7 +153,7 @@ const handleProviderChange = (value) => {
             aria-controls="appearance-panel"
             tabIndex={activeTab === 'appearance' ? 0 : -1}
           >
-            Appearance
+            🎨
           </button>
         </div>
         <div className="settings-content">
