@@ -29,17 +29,21 @@ body {
 }
 
 .light-mode {
-  background-color: var(--background-light);
-  color: var(--text-light);
-  background-image: radial-gradient(circle at 20% 20%, rgba(0, 123, 255, 0.05) 0%, transparent 20%),
-                    radial-gradient(circle at 80% 80%, rgba(0, 184, 148, 0.05) 0%, transparent 20%);
+  background-color: #FAFAFA;
+  color: #1A1A1A;
+  background-image: radial-gradient(circle at 20% 20%, rgba(var(--primary-color-rgb), 0.2) 0%, transparent 30%),
+                    radial-gradient(circle at 80% 80%, rgba(var(--primary-color-rgb), 0.15) 0%, transparent 30%),
+                    radial-gradient(circle at 40% 60%, rgba(var(--primary-color-rgb), 0.1) 0%, transparent 25%);
+  transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
 }
 
 .dark-mode {
-  background-color: var(--background-dark);
-  color: var(--text-dark);
-  background-image: radial-gradient(circle at 20% 20%, rgba(0, 123, 255, 0.1) 0%, transparent 20%),
-                    radial-gradient(circle at 80% 80%, rgba(0, 184, 148, 0.1) 0%, transparent 20%);
+  background-color: #121212;
+  color: #FFFFFF;
+  background-image: radial-gradient(circle at 20% 20%, rgba(var(--primary-color-rgb), 0.2) 0%, transparent 25%),
+                    radial-gradient(circle at 80% 80%, rgba(var(--primary-color-rgb), 0.15) 0%, transparent 25%),
+                    radial-gradient(circle at 40% 60%, rgba(var(--primary-color-rgb), 0.1) 0%, transparent 20%);
+  transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
 }
 
 .app-container {
@@ -100,13 +104,14 @@ body {
   max-width: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--foreground-light);
+  background: #FFFFFF;
   padding: 1.5rem 1.2rem;
   border-radius: 12px;
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow);
+  border: 1px solid #E0E0E0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-image: linear-gradient(145deg, rgba(var(--primary-color-rgb), 0.05), transparent);
   overflow-y: auto;
-  transition: width var(--transition), transform var(--transition), opacity var(--transition);
+  transition: width var(--transition), transform var(--transition), opacity var(--transition), background var(--transition), border var(--transition);
   position: relative;
   opacity: 1;
   transform: translateX(0) scale(1);
@@ -148,9 +153,11 @@ body {
 }
 
 .dark-mode .settings-sidebar {
-  background: var(--foreground-dark);
-  border: 1px solid var(--border-dark);
-  box-shadow: var(--shadow-dark);
+  background: #1E1E1E;
+  border: 1px solid #404040;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background-image: linear-gradient(145deg, rgba(var(--primary-color-rgb), 0.1), transparent);
+  transition: background var(--transition), border var(--transition);
 }
 
 .settings-sidebar h2, .settings-sidebar h3 {
@@ -177,10 +184,11 @@ body {
   position: relative;
   padding: 0.8rem 1rem;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.95);
   transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  border: 1px solid var(--border-light);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+  background-image: linear-gradient(145deg, rgba(var(--primary-color-rgb), 0.1), transparent);
 }
 
 .settings-group:last-of-type {
@@ -198,11 +206,14 @@ body {
   outline-offset: 2px;
   box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2), 0 4px 6px -2px rgba(59, 130, 246, 0.1);
   background: rgba(255, 255, 255, 0.7);
+  color: #FFFFFF;
 }
 
 .dark-mode .settings-group {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-dark);
+  background: rgba(var(--primary-color-rgb), 0.15);
+  border: 1px solid rgba(var(--primary-color-rgb), 0.3);
+  background-image: linear-gradient(145deg, rgba(var(--primary-color-rgb), 0.25), transparent);
+  color: #FFFFFF;
 }
 
 .dark-mode .settings-group:hover {
@@ -223,11 +234,11 @@ body {
   margin-bottom: 0.2rem;
   font-weight: 500;
   font-size: 0.95rem;
-  color: var(--text-light);
+  color: #FFFFFF;
 }
 
 .dark-mode .settings-group label {
-  color: var(--text-dark);
+  color: #FFFFFF;
 }
 
 .settings-group select,
@@ -258,9 +269,9 @@ body {
 
 .dark-mode .settings-group select,
 .dark-mode .settings-group input[type="range"] {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: var(--text-dark);
-  border: 1px solid var(--border-dark);
+  background-color: rgba(var(--primary-color-rgb), 0.2);
+  color: #FFFFFF;
+  border: 1px solid rgba(var(--primary-color-rgb), 0.4);
   background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
 }
 
@@ -386,9 +397,18 @@ body {
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
-  color: var(--secondary-color);
-  transition: color var(--transition), border-bottom var(--transition), background var(--transition), transform var(--transition);
+  color: #FFFFFF;
+  transition: color var(--transition), border-bottom var(--transition), background var(--transition), transform var(--transition), opacity var(--transition);
   border-radius: 8px 8px 0 0;
+  opacity: 0.5;
+}
+
+.tab-button:hover {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  background: rgba(59, 130, 246, 0.05);
+  transform: translateY(-1px);
+  opacity: 1;
 }
 
 .tab-button:hover {
@@ -412,7 +432,16 @@ body {
 }
 
 .dark-mode .tab-button {
-  color: var(--text-dark);
+  color: #FFFFFF;
+  opacity: 0.6;
+}
+
+.dark-mode .tab-button:hover {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  background: rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+  opacity: 1;
 }
 
 .dark-mode .tab-button:hover {
@@ -452,12 +481,13 @@ body {
   min-width: 60px;
   font-size: 0.9rem;
   font-weight: 500;
-  background: var(--foreground-light);
-  color: var(--text-light);
-  border: 1px solid var(--border-light);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 3px 8px rgba(var(--primary-color-rgb), 0.3);
 }
 
 .chat-action-btn:hover {
@@ -478,9 +508,10 @@ body {
 }
 
 .dark-mode .chat-action-btn {
-  background: var(--foreground-dark);
-  color: var(--text-dark);
-  border: 1px solid var(--border-dark);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  border: none;
+  background-image: none;
 }
 
 .dark-mode .chat-action-btn:hover {

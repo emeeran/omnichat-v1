@@ -108,6 +108,18 @@ const handleProviderChange = (value) => {
       <div className="settings-drawer compact-drawer always-open">
         <div className="settings-tabs" role="tablist">
           <button
+            className={`tab-button ${activeTab === 'provider' ? 'active' : ''}`}
+            onClick={() => setActiveTab('provider')}
+            onKeyDown={(e) => handleTabKeyDown(e, 'provider')}
+            aria-selected={activeTab === 'provider'}
+            role="tab"
+            id="provider-tab"
+            aria-controls="provider-panel"
+            tabIndex={activeTab === 'provider' ? 0 : -1}
+          >
+            Provider
+          </button>
+          <button
             className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
             onClick={() => setActiveTab('chat')}
             onKeyDown={(e) => handleTabKeyDown(e, 'chat')}
@@ -158,16 +170,19 @@ const handleProviderChange = (value) => {
               </div>
               <div className="settings-group compact-group">
                 <label htmlFor="api-key-input">API Key</label>
-                <input
-                  id="api-key-input"
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="Enter API Key"
-                  className="api-key-input"
-                  aria-describedby={apiKeyError ? "api-key-error" : apiKeySuccess ? "api-key-success" : ""}
-                />
-                <button onClick={handleApiKeySubmit} className="api-key-submit" disabled={!apiKey.trim() || !provider}>Register</button>
+                <form onSubmit={(e) => e.preventDefault()}>
+                  <input
+                    id="api-key-input"
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="Enter API Key"
+                    className="api-key-input"
+                    aria-describedby={apiKeyError ? "api-key-error" : apiKeySuccess ? "api-key-success" : ""}
+                    autocomplete="new-password"
+                  />
+                  <button onClick={handleApiKeySubmit} className="api-key-submit" disabled={!apiKey.trim() || !provider}>Register</button>
+                </form>
                 {apiKeyError && <div className="error-message" id="api-key-error">{apiKeyError}</div>}
                 {apiKeySuccess && <div className="success-message" id="api-key-success">API Key registered successfully!</div>}
               </div>
@@ -297,6 +312,10 @@ const handleProviderChange = (value) => {
                   <option value="Green">Green</option>
                   <option value="Purple">Purple</option>
                   <option value="Orange">Orange</option>
+                  <option value="Teal">Teal</option>
+                  <option value="Red">Red</option>
+                  <option value="Indigo">Indigo</option>
+                  <option value="Amber">Amber</option>
                 </select>
                 <div style={{ fontSize: '0.8em', color: '#888', marginTop: '5px' }}>
                   Choose a primary color theme for the application

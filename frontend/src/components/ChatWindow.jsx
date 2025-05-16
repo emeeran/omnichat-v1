@@ -216,7 +216,7 @@ const ChatWindow = ({ provider, model, persona, chatHistory, setChatHistory, ret
 
   // Determine theme color based on the setting
   const themeColorStyle = {
-    color: themeColor === 'Green' ? '#00BFA5' : themeColor === 'Purple' ? '#9C27B0' : themeColor === 'Orange' ? '#FF9800' : '#3B82F6'
+    color: themeColor === 'Green' ? '#00BFA5' : themeColor === 'Purple' ? '#9C27B0' : themeColor === 'Orange' ? '#FF9800' : themeColor === 'Teal' ? '#009688' : themeColor === 'Red' ? '#F44336' : themeColor === 'Indigo' ? '#3F51B5' : themeColor === 'Amber' ? '#FFC107' : '#3B82F6'
   };
 
   return (

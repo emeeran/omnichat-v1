@@ -16,6 +16,9 @@ export default function App() {
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
+    // Ensure the entire document root reflects the mode change
+    document.documentElement.className = newDarkMode ? 'dark-mode' : 'light-mode';
+    // Also update body for additional compatibility
     document.body.className = newDarkMode ? 'dark-mode' : 'light-mode';
   };
 
@@ -117,9 +120,9 @@ export default function App() {
   };
 
   // Apply theme color as a CSS variable
-  const themeColorValue = themeColor === 'Green' ? '#00BFA5' : themeColor === 'Purple' ? '#9C27B0' : themeColor === 'Orange' ? '#FF9800' : '#3B82F6';
+  const themeColorValue = themeColor === 'Green' ? '#00BFA5' : themeColor === 'Purple' ? '#9C27B0' : themeColor === 'Orange' ? '#FF9800' : themeColor === 'Teal' ? '#009688' : themeColor === 'Red' ? '#F44336' : themeColor === 'Indigo' ? '#3F51B5' : themeColor === 'Amber' ? '#FFC107' : '#3B82F6';
   document.documentElement.style.setProperty('--primary-color', themeColorValue);
-  document.documentElement.style.setProperty('--primary-dark', themeColor === 'Green' ? '#008C7A' : themeColor === 'Purple' ? '#7E1F86' : themeColor === 'Orange' ? '#E65100' : '#2563EB');
+  document.documentElement.style.setProperty('--primary-dark', themeColor === 'Green' ? '#008C7A' : themeColor === 'Purple' ? '#7E1F86' : themeColor === 'Orange' ? '#E65100' : themeColor === 'Teal' ? '#00796B' : themeColor === 'Red' ? '#D32F2F' : themeColor === 'Indigo' ? '#303F9F' : themeColor === 'Amber' ? '#FFA000' : '#2563EB');
 
   // Apply text size as a CSS variable
   const textSizeValue = textSize === 'Small' ? '0.8em' : textSize === 'Large' ? '1.2em' : '1em';
