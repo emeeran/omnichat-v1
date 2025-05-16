@@ -5,6 +5,7 @@ import '@styles/Markdown.css';
 const ChatWindow = ({ provider, model, persona, chatHistory, setChatHistory, retryTrigger, textSize, themeColor }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [error, setError] = useState(null);
 
   // Sync messages with chatHistory from parent
   React.useEffect(() => {
@@ -16,23 +17,42 @@ const ChatWindow = ({ provider, model, persona, chatHistory, setChatHistory, ret
     if (retryTrigger > 0) {
       const lastUserQuery = [...messages].reverse().find(msg => msg.sender === 'user');
       if (lastUserQuery) {
-        handleRetryMessage(lastUserQuery);
+        handleMessage(lastUserQuery.text, true);
       }
     }
   }, [retryTrigger]);
 
-  const handleRetryMessage = async (query) => {
-    const retryMessage = {
+  const handleMessage = async (messageText, isRetry = false) => {
+    // Reset any previous errors
+    setError(null);
+
+    // Validate inputs
+    if (!provider || !model) {
+      const errorResponse = {
+        id: Date.now() + 1,
+        text: "Error: Provider or model not selected. Please choose a provider and model.",
+        sender: 'system',
+        timestamp: new Date().toLocaleTimeString(),
+      };
+      const newMessages = [...messages, errorResponse];
+      setMessages(newMessages);
+      setChatHistory(newMessages);
+      setError("Provider or model not selected");
+      return;
+    }
+
+    const newMessage = {
       id: Date.now(),
-      text: query.text + " (Retry)",
+      text: isRetry ? messageText + " (Retry)" : messageText,
       sender: 'user',
       timestamp: new Date().toLocaleTimeString(),
-      isRetry: true
+      isRetry: isRetry
     };
-    const updatedMessages = [...messages, retryMessage];
+    const updatedMessages = [...messages, newMessage];
     setMessages(updatedMessages);
     setChatHistory(updatedMessages);
-    
+    setInput('');
+
     // Send message to backend for AI response
     try {
       const { sendMessage } = await import('../services/api.js');
@@ -42,6 +62,7 @@ const ChatWindow = ({ provider, model, persona, chatHistory, setChatHistory, ret
         messages: updatedMessages.map(msg => ({ role: msg.sender === 'user' ? 'user' : 'assistant', content: msg.text })),
         options: {}
       });
+
       if (response.error) {
         let errorText = `Error: ${response.error}`;
         if (response.error.includes("Provider not configured")) {
@@ -56,89 +77,37 @@ const ChatWindow = ({ provider, model, persona, chatHistory, setChatHistory, ret
         const newMessages = [...updatedMessages, errorResponse];
         setMessages(newMessages);
         setChatHistory(newMessages);
+        setError(errorText);
       } else {
         const aiResponse = {
           id: Date.now() + 1,
           text: response.content || 'No response content',
           sender: 'ai',
           timestamp: new Date().toLocaleTimeString(),
-          isRetryResponse: true
+          isRetryResponse: isRetry
         };
         const newMessages = [...updatedMessages, aiResponse];
         setMessages(newMessages);
         setChatHistory(newMessages);
       }
     } catch (error) {
+      console.error('Detailed error in handleMessage:', error);
       const errorResponse = {
         id: Date.now() + 1,
-        text: `Error sending message: ${error.message}`,
-        sender: 'ai',
+        text: `Unexpected error: ${error.message}. Please check your network connection and backend server.`,
+        sender: 'system',
         timestamp: new Date().toLocaleTimeString(),
       };
       const newMessages = [...updatedMessages, errorResponse];
       setMessages(newMessages);
       setChatHistory(newMessages);
+      setError(error.message);
     }
   };
 
   const handleSendMessage = async () => {
     if (input.trim()) {
-      const newMessage = {
-        id: Date.now(),
-        text: input,
-        sender: 'user',
-        timestamp: new Date().toLocaleTimeString(),
-      };
-      const updatedMessages = [...messages, newMessage];
-      setMessages(updatedMessages);
-      setChatHistory(updatedMessages);
-      setInput('');
-      
-      // Send message to backend for AI response
-      try {
-        const { sendMessage } = await import('../services/api.js');
-        const response = await sendMessage({
-          provider: provider,
-          model: model,
-          messages: [...messages, newMessage].map(msg => ({ role: msg.sender === 'user' ? 'user' : 'assistant', content: msg.text })),
-          options: {}
-        });
-        if (response.error) {
-          let errorText = `Error: ${response.error}`;
-          if (response.error.includes("Provider not configured")) {
-            errorText = "Error: Provider not configured. Please ensure an API key is set up for the selected provider in the backend.";
-          }
-          const errorResponse = {
-            id: Date.now() + 1,
-            text: errorText,
-            sender: 'ai',
-            timestamp: new Date().toLocaleTimeString(),
-          };
-          const updatedMessages = [...messages, errorResponse];
-          setMessages(updatedMessages);
-          setChatHistory(updatedMessages);
-        } else {
-          const aiResponse = {
-            id: Date.now() + 1,
-            text: response.content || 'No response content',
-            sender: 'ai',
-            timestamp: new Date().toLocaleTimeString(),
-          };
-          const updatedMessages = [...messages, aiResponse];
-          setMessages(updatedMessages);
-          setChatHistory(updatedMessages);
-        }
-      } catch (error) {
-        const errorResponse = {
-          id: Date.now() + 1,
-          text: `Error sending message: ${error.message}`,
-          sender: 'ai',
-          timestamp: new Date().toLocaleTimeString(),
-        };
-        const updatedMessages = [...messages, errorResponse];
-        setMessages(updatedMessages);
-        setChatHistory(updatedMessages);
-      }
+      handleMessage(input);
     }
   };
 
@@ -227,6 +196,11 @@ const ChatWindow = ({ provider, model, persona, chatHistory, setChatHistory, ret
           {provider && model ? `${provider} | ${model}` : 'No provider/model selected'}
         </div>
       </div>
+      {error && (
+        <div className="error-banner" style={{ backgroundColor: 'red', color: 'white', padding: '10px', textAlign: 'center' }}>
+          {error}
+        </div>
+      )}
       <div className="chat-messages">
         {messages.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#888' }}>No messages yet. Start chatting!</p>

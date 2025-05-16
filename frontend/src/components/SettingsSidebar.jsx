@@ -1,43 +1,78 @@
 import React, { useState } from 'react';
 import ProviderModelSelector from './ProviderModelSelector';
 
-async function registerProvider(providerId, apiKey) {
-  try {
-    const res = await fetch('/api/providers/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ provider_id: providerId, api_key: apiKey })
-    });
-    const response = await res.json();
-    return response.success ? { success: true } : { error: response.error || 'Failed to register provider' };
-  } catch (error) {
-    console.error('Error registering provider:', error);
-    return { error: error.message || 'Unknown error' };
-  }
-}
-
-export default function SettingsSidebar({ provider, setProvider, model, setModel, persona, setPersona, onRetry, onNewChat, onSaveChat, onLoadChat, onDeleteChat, onExportChat, darkMode, toggleDarkMode, textSize, setTextSize, themeColor, setThemeColor }) {
-  const [mode, setMode] = useState('chat');
-  const [maxTemp, setMaxTemp] = useState(1.0);
-  const [temp, setTemp] = useState(0.7);
-  const [audioResponse, setAudioResponse] = useState(false);
-  const [localTextSize, setLocalTextSize] = useState('Medium');
-  const [localThemeColor, setLocalThemeColor] = useState('Default');
+const SettingsSidebar = ({ provider, setProvider, model, setModel, persona, setPersona, onRetry, onNewChat, onSaveChat, onLoadChat, onDeleteChat, onExportChat, darkMode, toggleDarkMode, textSize, setTextSize, themeColor, setThemeColor }) => {
+  const [settings, setSettings] = useState({
+    mode: 'chat',
+    maxTemp: 1.0,
+    temp: 0.7,
+    audioResponse: false,
+    textSize: 'Medium',
+    themeColor: 'Default'
+  });
   const [apiKey, setApiKey] = useState('');
   const [apiKeyError, setApiKeyError] = useState('');
   const [apiKeySuccess, setApiKeySuccess] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState('provider');
 
-const handleProviderChange = (value) => {
-    setProvider(value);
-    setModel(''); // Reset model when provider changes
+  const tabs = [
+    { id: 'provider', emoji: '🌐' },
+    { id: 'chat', emoji: '💬' },
+    { id: 'advanced', emoji: '⚙️' },
+    { id: 'appearance', emoji: '🎨' }
+  ];
+
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
   };
 
-  const handleModelChange = (value) => {
-    setModel(value);
+  const handleTabKeyDown = (e, tabId) => {
+    if (e.key === 'Enter') {
+      setActiveTab(tabId);
+    }
+  };
+
+  async function registerProvider(providerId, apiKey) {
+    try {
+      const res = await fetch('/api/providers/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider_id: providerId, api_key: apiKey })
+      });
+      const response = await res.json();
+      return response.success ? { success: true } : { error: response.error || 'Failed to register provider' };
+    } catch (error) {
+      console.error('Error registering provider:', error);
+      return { error: error.message || 'Unknown error' };
+    }
+  }
+
+  const updateSettings = (key, value) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleProviderOrModelChange = (type, value) => {
+    if (type === 'provider') {
+      setProvider(value);
+      setModel(''); // Reset model when provider changes
+    } else if (type === 'model') {
+      setModel(value);
+    }
   };
 
   const handlePersonaChange = (e) => {
     setPersona(e.target.value);
+  };
+
+  const handleSettingChange = (key) => (e) => {
+    updateSettings(key, e.target.value);
+    if (key === 'textSize') setTextSize(e.target.value);
+    if (key === 'themeColor') setThemeColor(e.target.value);
+  };
+
+  const toggleAudioResponse = () => {
+    updateSettings('audioResponse', !settings.audioResponse);
   };
 
   const handleApiKeySubmit = async () => {
@@ -60,101 +95,25 @@ const handleProviderChange = (value) => {
     }
   };
 
-  const [activeTab, setActiveTab] = useState('provider');
-
-  const handleTabKeyDown = (e, tabName) => {
-    const tabs = ['provider', 'chat', 'advanced', 'appearance'];
-    const currentIndex = tabs.indexOf(activeTab);
-    let newIndex = currentIndex;
-
-    if (e.key === 'ArrowLeft') {
-      newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-    } else if (e.key === 'ArrowRight') {
-      newIndex = (currentIndex + 1) % tabs.length;
-    } else if (e.key === 'Enter' || e.key === ' ') {
-      setActiveTab(tabName);
-      return;
-    } else {
-      return;
-    }
-
-    setActiveTab(tabs[newIndex]);
-    e.preventDefault();
-  };
-
-  // Load default settings on component mount
-  React.useEffect(() => {
-    const savedSettings = JSON.parse(localStorage.getItem('defaultSettings') || '{}');
-    if (savedSettings.provider) setProvider(savedSettings.provider);
-    if (savedSettings.model) setModel(savedSettings.model);
-    if (savedSettings.persona) setPersona(savedSettings.persona);
-    if (savedSettings.mode) setMode(savedSettings.mode);
-    if (savedSettings.temp !== undefined) setTemp(savedSettings.temp);
-    if (savedSettings.maxTemp !== undefined) setMaxTemp(savedSettings.maxTemp);
-    if (savedSettings.audioResponse !== undefined) setAudioResponse(savedSettings.audioResponse);
-    if (savedSettings.darkMode !== undefined && darkMode !== savedSettings.darkMode) toggleDarkMode();
-    if (savedSettings.textSize) {
-      setLocalTextSize(savedSettings.textSize);
-      setTextSize(savedSettings.textSize);
-    }
-    if (savedSettings.themeColor) {
-      setLocalThemeColor(savedSettings.themeColor);
-      setThemeColor(savedSettings.themeColor);
-    }
-  }, [darkMode, setProvider, setModel, setPersona, toggleDarkMode, setTextSize, setThemeColor]);
-
   return (
-    <div className="settings-sidebar">
+    <div className={`settings-sidebar ${collapsed ? 'collapsed' : ''}`}>
       <div className="settings-drawer compact-drawer always-open">
         <div className="settings-tabs" role="tablist">
-          <button
-            className={`tab-button ${activeTab === 'provider' ? 'active' : ''}`}
-            onClick={() => setActiveTab('provider')}
-            onKeyDown={(e) => handleTabKeyDown(e, 'provider')}
-            aria-selected={activeTab === 'provider'}
-            role="tab"
-            id="provider-tab"
-            aria-controls="provider-panel"
-            tabIndex={activeTab === 'provider' ? 0 : -1}
-          >
-            🌐
-          </button>
-          <button
-            className={`tab-button ${activeTab === 'chat' ? 'active' : ''}`}
-            onClick={() => setActiveTab('chat')}
-            onKeyDown={(e) => handleTabKeyDown(e, 'chat')}
-            aria-selected={activeTab === 'chat'}
-            role="tab"
-            id="chat-tab"
-            aria-controls="chat-panel"
-            tabIndex={activeTab === 'chat' ? 0 : -1}
-          >
-            💬
-          </button>
-          <button
-            className={`tab-button ${activeTab === 'advanced' ? 'active' : ''}`}
-            onClick={() => setActiveTab('advanced')}
-            onKeyDown={(e) => handleTabKeyDown(e, 'advanced')}
-            aria-selected={activeTab === 'advanced'}
-            role="tab"
-            id="advanced-tab"
-            aria-controls="advanced-panel"
-            tabIndex={activeTab === 'advanced' ? 0 : -1}
-          >
-            ⚙️
-          </button>
-          <button
-            className={`tab-button ${activeTab === 'appearance' ? 'active' : ''}`}
-            onClick={() => setActiveTab('appearance')}
-            onKeyDown={(e) => handleTabKeyDown(e, 'appearance')}
-            aria-selected={activeTab === 'appearance'}
-            role="tab"
-            id="appearance-tab"
-            aria-controls="appearance-panel"
-            tabIndex={activeTab === 'appearance' ? 0 : -1}
-          >
-            🎨
-          </button>
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+              onKeyDown={(e) => handleTabKeyDown(e, tab.id)}
+              aria-selected={activeTab === tab.id}
+              role="tab"
+              id={`${tab.id}-tab`}
+              aria-controls={`${tab.id}-panel`}
+              tabIndex={activeTab === tab.id ? 0 : -1}
+            >
+              {tab.emoji}
+            </button>
+          ))}
         </div>
         <div className="settings-content">
           {activeTab === 'provider' && (
@@ -164,8 +123,8 @@ const handleProviderChange = (value) => {
                 <ProviderModelSelector
                   provider={provider}
                   model={model}
-                  onProviderChange={handleProviderChange}
-                  onModelChange={handleModelChange}
+                  onProviderChange={(value) => handleProviderOrModelChange('provider', value)}
+                  onModelChange={(value) => handleProviderOrModelChange('model', value)}
                 />
               </div>
               <div className="settings-group compact-group">
@@ -179,7 +138,7 @@ const handleProviderChange = (value) => {
                     placeholder="Enter API Key"
                     className="api-key-input"
                     aria-describedby={apiKeyError ? "api-key-error" : apiKeySuccess ? "api-key-success" : ""}
-                    autocomplete="new-password"
+                    autoComplete="new-password"
                   />
                   <button onClick={handleApiKeySubmit} className="api-key-submit" disabled={!apiKey.trim() || !provider}>Register</button>
                 </form>
@@ -193,7 +152,7 @@ const handleProviderChange = (value) => {
               <h3>Chat Settings</h3>
               <div className="settings-group compact-group">
                 <label htmlFor="mode-select">Mode</label>
-                <select id="mode-select" value={mode} onChange={e => setMode(e.target.value)}>
+                <select id="mode-select" value={settings.mode} onChange={handleSettingChange('mode')}>
                   <option value="chat">Chat</option>
                   <option value="assistant">Assistant</option>
                   <option value="code">Code</option>
@@ -213,9 +172,9 @@ const handleProviderChange = (value) => {
             <div className="settings-category" role="tabpanel" id="advanced-panel" aria-labelledby="advanced-tab">
               <h3>Advanced Settings</h3>
               <div className="settings-group slider-group compact-group">
-                <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                   <label htmlFor="max-tokens-slider">Max Tokens</label>
-                  <span style={{fontSize: '0.85em', color: '#888'}}>{maxTemp}</span>
+                  <span style={{ fontSize: '0.85em', color: '#888' }}>{settings.maxTemp}</span>
                 </div>
                 <input
                   id="max-tokens-slider"
@@ -223,15 +182,15 @@ const handleProviderChange = (value) => {
                   min="0"
                   max="4096"
                   step="64"
-                  value={maxTemp}
-                  onChange={(e) => setMaxTemp(parseFloat(e.target.value))}
+                  value={settings.maxTemp}
+                  onChange={(e) => updateSettings('maxTemp', parseFloat(e.target.value))}
                   className="settings-slider"
                 />
               </div>
               <div className="settings-group slider-group compact-group">
-                <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                   <label htmlFor="temperature-slider">Temp</label>
-                  <span style={{fontSize: '0.85em', color: '#888'}}>{temp}</span>
+                  <span style={{ fontSize: '0.85em', color: '#888' }}>{settings.temp}</span>
                 </div>
                 <input
                   id="temperature-slider"
@@ -239,8 +198,8 @@ const handleProviderChange = (value) => {
                   min="0"
                   max="2"
                   step="0.1"
-                  value={temp}
-                  onChange={(e) => setTemp(parseFloat(e.target.value))}
+                  value={settings.temp}
+                  onChange={(e) => updateSettings('temp', parseFloat(e.target.value))}
                   className="settings-slider"
                 />
               </div>
@@ -249,27 +208,22 @@ const handleProviderChange = (value) => {
                 <input
                   id="audio-response-checkbox"
                   type="checkbox"
-                  checked={audioResponse}
-                  onChange={() => setAudioResponse(!audioResponse)}
+                  checked={settings.audioResponse}
+                  onChange={toggleAudioResponse}
                 />
                 <div style={{ fontSize: '0.8em', color: '#888', marginTop: '5px' }}>Enable audio playback for AI responses</div>
               </div>
               <div className="settings-group compact-group">
                 <label>Save Settings</label>
                 <button onClick={() => {
-                  const settings = {
+                  const combinedSettings = {
                     provider,
                     model,
                     persona,
-                    mode,
-                    temp,
-                    maxTemp,
-                    audioResponse,
                     darkMode,
-                    textSize: localTextSize,
-                    themeColor: localThemeColor
+                    ...settings
                   };
-                  localStorage.setItem('defaultSettings', JSON.stringify(settings));
+                  localStorage.setItem('defaultSettings', JSON.stringify(combinedSettings));
                   alert('Settings saved as default!');
                 }} className="save-default-btn" aria-label="Save current settings as default" style={{ marginTop: '5px', width: '100%', padding: '8px' }}>Save as Default</button>
                 <div style={{ fontSize: '0.8em', color: '#888', marginTop: '5px' }}>Saves current settings for future sessions</div>
@@ -290,10 +244,7 @@ const handleProviderChange = (value) => {
               </div>
               <div className="settings-group compact-group">
                 <label htmlFor="text-size-select">Text Size</label>
-                <select id="text-size-select" value={localTextSize} onChange={e => {
-                  setLocalTextSize(e.target.value);
-                  setTextSize(e.target.value);
-                }}>
+                <select id="text-size-select" value={settings.textSize} onChange={handleSettingChange('textSize')}>
                   <option value="Small">Small</option>
                   <option value="Medium">Medium</option>
                   <option value="Large">Large</option>
@@ -304,10 +255,7 @@ const handleProviderChange = (value) => {
               </div>
               <div className="settings-group compact-group">
                 <label htmlFor="theme-color-select">Theme Color</label>
-                <select id="theme-color-select" value={localThemeColor} onChange={e => {
-                  setLocalThemeColor(e.target.value);
-                  setThemeColor(e.target.value);
-                }}>
+                <select id="theme-color-select" value={settings.themeColor} onChange={handleSettingChange('themeColor')}>
                   <option value="Default">Default (Blue)</option>
                   <option value="Green">Green</option>
                   <option value="Purple">Purple</option>
@@ -335,6 +283,11 @@ const handleProviderChange = (value) => {
           <button onClick={onExportChat} className="chat-action-btn" aria-label="Export current chat">Export</button>
         </div>
       </div>
+      <button onClick={toggleCollapse} className="collapse-toggle-btn" aria-label="Toggle sidebar collapse">
+        {collapsed ? 'Expand' : 'Collapse'}
+      </button>
     </div>
   );
-}
+};
+
+export default SettingsSidebar;
