@@ -1,0 +1,29 @@
+# Flask and related packages
+Flask==2.3.2
+Flask-RESTful==0.3.10
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.4
+Flask-Cors==3.0.10
+
+# Database
+SQLAlchemy==2.0.16
+psycopg2-binary==2.9.6
+
+# API clients
+openai==1.30.1
+anthropic==0.25.9
+# google-generative-ai - temporarily commented out due to installation issues
+
+# Utilities
+requests==2.31.0
+python-dotenv==1.0.1
+gunicorn==22.0.0
+pydantic==2.7.1
+
+# Testing
+pytest==8.2.0
+pytest-cov==5.0.0
+mock==5.1.0
+
+# Monitoring
+prometheus_client==0.20.0

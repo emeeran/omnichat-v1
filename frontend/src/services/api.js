@@ -1,127 +1,125 @@
-// src/services/api.js
+import axios from 'axios';
 
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE_URL = '/api';
 
-export async function fetchProviders() {
+export const fetchProviders = async () => {
   try {
-    const res = await fetch(`${API_BASE}/providers`);
-    if (!res.ok) throw new Error('Failed to fetch providers');
-    const response = await res.json();
-    return response.providers || [];
+    const response = await axios.get(`${API_BASE_URL}/providers`);
+    return response.data;
   } catch (error) {
     console.error('Error fetching providers:', error);
-    return [];
+    // Fallback providers if API call fails
+    return [
+      { id: 'deepseek', name: 'Deepseek' },
+      { id: 'openai', name: 'OpenAI' },
+      { id: 'anthropic', name: 'Anthropic' },
+      { id: 'google', name: 'Google' },
+      { id: 'mistral', name: 'Mistral' },
+      { id: 'cohere', name: 'Cohere' },
+      { id: 'groq', name: 'Groq' }
+    ];
   }
-}
+};
 
-export async function fetchModels(providerId) {
+export const fetchModels = async (providerId) => {
   try {
-    const res = await fetch(`${API_BASE}/providers/${providerId}/models`);
-    if (!res.ok) throw new Error('Failed to fetch models');
-    const response = await res.json();
-    return response.models || [];
+    const response = await axios.get(`${API_BASE_URL}/models/${providerId}`);
+    return response.data;
   } catch (error) {
-    console.error('Error fetching models:', error);
-    return [];
+    console.error(`Error fetching models for ${providerId}:`, error);
+    
+    // Fallback models for different providers
+    const fallbackModels = {
+      'deepseek': [
+        { id: 'deepseek-chat', name: 'Deepseek Chat' },
+        { id: 'deepseek-coder', name: 'Deepseek Coder' },
+        { id: 'deepseek-llm', name: 'Deepseek LLM' }
+      ],
+      'openai': [
+        { id: 'gpt-4.1-nano-2025-04-14', name: 'GPT-4.1 Nano (2025-04-14)' },
+        { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano' },
+        { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
+        { id: 'gpt-4', name: 'GPT-4' }
+      ],
+      'anthropic': [
+        { id: 'claude-2.0', name: 'Claude 2.0' },
+        { id: 'claude-instant-1.2', name: 'Claude Instant 1.2' }
+      ],
+      'google': [
+        { id: 'gemini-pro', name: 'Gemini Pro' }
+      ],
+      'mistral': [
+        { id: 'mistral-small', name: 'Mistral Small' },
+        { id: 'mistral-medium', name: 'Mistral Medium' },
+        { id: 'mistral-large', name: 'Mistral Large' }
+      ],
+      'cohere': [
+        { id: 'command', name: 'Command' },
+        { id: 'command-light', name: 'Command Light' },
+        { id: 'command-r', name: 'Command R' }
+      ],
+      'groq': [
+        { id: 'llama2-70b-4096', name: 'Llama2 70B' },
+        { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B' }
+      ]
+    };
+    
+    return fallbackModels[providerId.toLowerCase()] || [];
   }
-}
+};
 
-export async function sendMessage({ provider, model, messages, options }) {
-  // Modify the last user message to request Markdown formatting
-  const modifiedMessages = messages.map((msg, index) => {
-    if (index === messages.length - 1 && msg.role === 'user') {
-      return {
-        ...msg,
-        content: msg.content + "\n\nPlease format your response using Markdown syntax (e.g., **bold**, *italic*, # Heading, - lists, ```code blocks```, etc.) for better readability."
-      };
-    }
-    return msg;
-  });
+export const registerProvider = async (providerId, apiKey) => {
   try {
-    const res = await fetch(`${API_BASE}/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ provider, model, messages: modifiedMessages, options })
+    const response = await axios.post(`${API_BASE_URL}/providers/register`, {
+      provider_id: providerId,
+      api_key: apiKey
     });
-    const text = await res.text();
-    console.log('Raw response from backend (full text):', text);
-    try {
-      const response = JSON.parse(text);
-      console.log('Parsed response structure (detailed):', JSON.stringify(response, null, 2));
-      // Extract content from various possible response structures
-      let content = '';
-      if (response.text) {
-        content = response.text;
-        console.log('Extracted content from "text" field:', content);
-      } else if (response.content) {
-        content = response.content;
-        console.log('Extracted content from "content" field:', content);
-      } else if (response.data && response.data.content) {
-        content = response.data.content;
-        console.log('Extracted content from "data.content" field:', content);
-      } else if (response.choices && response.choices.length > 0 && response.choices[0].message) {
-        content = response.choices[0].message.content || 'No content in response';
-        console.log('Extracted content from "choices[0].message.content" field:', content);
-      } else {
-        content = 'Unable to extract response content';
-        console.log('Unexpected response structure, no content found:', JSON.stringify(response, null, 2));
-      }
-      return { content: content };
-    } catch (parseError) {
-      console.error('Error parsing JSON response:', parseError);
-      return { error: 'Failed to parse response from backend' };
-    }
+    return response.data;
+  } catch (error) {
+    console.error(`Error registering provider ${providerId}:`, error);
+    throw error;
+  }
+};
+
+export const sendMessage = async (data) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/chat/completions`, data);
+    return response.data;
   } catch (error) {
     console.error('Error sending message:', error);
-    return { error: error.message || 'Unknown error' };
+    return { error: error.message };
   }
-}
+};
 
-export async function uploadFile(formData) {
+export const streamMessage = async (data, onChunk) => {
   try {
-    const res = await fetch(`${API_BASE}/chat/upload`, {
+    const response = await fetch(`/api/chat/stream`, {
       method: 'POST',
-      body: formData
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
-    const response = await res.json();
-    return response || { error: 'Unknown error' };
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    return { error: error.message || 'Unknown error' };
-  }
-}
 
-// Function to handle streaming responses (to be implemented on backend)
-export function streamMessage({ provider, model, messages, options, onChunk }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const res = await fetch(`${API_BASE}/chat/stream`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider, model, messages, options })
-      });
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      const reader = res.body.getReader();
-      let fullResponse = '';
-      
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          resolve({ content: fullResponse });
-          break;
-        }
-        
-        const chunk = new TextDecoder('utf-8').decode(value);
-        fullResponse += chunk;
-        onChunk(chunk);
-      }
-    } catch (error) {
-      console.error('Error streaming message:', error);
-      reject(error);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  });
-}
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let result = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      result += chunk;
+      onChunk(chunk);
+    }
+
+    return { content: result };
+  } catch (error) {
+    console.error('Error streaming message:', error);
+    return { error: error.message };
+  }
+};

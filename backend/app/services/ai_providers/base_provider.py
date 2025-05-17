@@ -1,25 +1,63 @@
-class BaseAIProvider:
-    """Base class for all AI providers"""
-    
+from abc import ABC, abstractmethod
+import requests
+
+class BaseProvider(ABC):
+    """
+    Abstract base class for AI providers
+    Defines the interface for all provider implementations
+    """
     def __init__(self, api_key):
-        self.api_key = api_key
+        """
+        Initialize the provider with an API key
         
-    async def get_available_models(self):
-        """Fetch available models from the provider"""
-        raise NotImplementedError
+        :param api_key: API key for authentication
+        """
+        self._api_key = api_key
+        self.name = None  # To be set by child classes
+        self.supported_models = []  # To be set by child classes
+
+    @abstractmethod
+    def get_supported_models(self):
+        """
+        Retrieve the list of supported models for this provider
         
-    async def generate_completion(self, messages, model, options=None):
-        """Generate a completion for the given messages"""
-        raise NotImplementedError
+        :return: List of supported model names
+        """
+        pass
+
+    def validate_api_key(self):
+        """
+        Validate the API key for the provider
         
-    async def process_image(self, image_data, prompt, model, options=None):
-        """Process an image with the given prompt"""
-        raise NotImplementedError
+        :return: Boolean indicating if the API key is valid
+        """
+        # Basic validation, can be overridden by specific providers
+        if not self._api_key or not isinstance(self._api_key, str):
+            return False
+
+        # Check if the API key is valid by making a test request
+        try:
+            response = requests.get(
+                self.get_api_endpoint(),
+                headers={'Authorization': f'Bearer {self._api_key}'}
+            )
+            return response.status_code == 200
+        except requests.RequestException:
+            return False
+
+    def get_api_endpoint(self):
+        """
+        Get the API endpoint for the provider
         
-    async def process_audio(self, audio_data, options=None):
-        """Process audio data (transcription/analysis)"""
-        raise NotImplementedError
-    
-    async def generate_image(self, prompt, options=None):
-        """Generate an image based on the prompt"""
-        raise NotImplementedError
+        :return: API endpoint URL
+        """
+        # This method should be overridden by specific providers
+        raise NotImplementedError("API endpoint not implemented")
+
+    def __str__(self):
+        """
+        String representation of the provider
+        
+        :return: Provider name
+        """
+        return self.name or 'Unnamed Provider'

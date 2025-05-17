@@ -1,0 +1,77 @@
+{
+  "openai": {
+    "models": [
+      "gpt-4o-realtime-preview-2024-12-17",
+      "gpt-4o-audio-preview-2024-12-17",
+      "gpt-4o-audio-preview-2024-10-01",
+      "gpt-4o-mini-audio-preview",
+      "gpt-4o-audio-preview",
+      "gpt-4o-mini-realtime-preview",
+      "gpt-4o-mini-realtime-preview-2024-12-17",
+      "gpt-4.1-nano",
+      "gpt-4o-mini-search-preview",
+      "gpt-4.1-nano-2025-04-14",
+      "gpt-4o-realtime-preview",
+      "gpt-4o-search-preview",
+      "gpt-4o-mini-search-preview-2025-03-11",
+      "gpt-4-0125-preview",
+      "gpt-4o-2024-11-20",
+      "gpt-4o-2024-05-13",
+      "gpt-4o-mini-tts",
+      "gpt-4o-transcribe",
+      "gpt-4.5-preview",
+      "gpt-4.5-preview-2025-02-27",
+      "gpt-4o-search-preview-2025-03-11",
+      "gpt-image-1",
+      "gpt-4o",
+      "gpt-4o-2024-08-06",
+      "gpt-4o-mini-2024-07-18",
+      "gpt-4.1-mini",
+      "gpt-4o-mini",
+      "gpt-4o-mini-audio-preview-2024-12-17",
+      "gpt-4o-realtime-preview-2024-10-01",
+      "gpt-4o-mini-transcribe",
+      "gpt-4.1-mini-2025-04-14",
+      "gpt-4.1",
+      "gpt-4.1-2025-04-14",
+      "ft:gpt-4o-mini-2024-07-18:nesin-technologies-llp:cb-api-test:BFk0ddGT:ckpt-step-75",
+      "ft:gpt-4o-mini-2024-07-18:nesin-technologies-llp:cb-api-test:BFk0cEzg:ckpt-step-60",
+      "ft:gpt-4o-mini-2024-07-18:nesin-technologies-llp:cb-api-test:BFk0drkn"
+    ],
+    "timestamp": "2025-05-17T22:23:57.625997"
+  },
+  "alibaba": {
+    "models": [
+      "qwen2-7b-instruct",
+      "qwen-max",
+      "qwen-plus",
+      "qwen-turbo"
+    ],
+    "timestamp": "2025-05-17T22:25:53.517610"
+  },
+  "groq": {
+    "models": [
+      "mistral-saba-24b",
+      "distil-whisper-large-v3-en",
+      "whisper-large-v3",
+      "meta-llama/llama-4-maverick-17b-128e-instruct",
+      "deepseek-r1-distill-llama-70b",
+      "compound-beta",
+      "llama3-8b-8192",
+      "llama-3.3-70b-versatile",
+      "qwen-qwq-32b",
+      "gemma2-9b-it",
+      "llama-3.1-8b-instant",
+      "whisper-large-v3-turbo",
+      "allam-2-7b",
+      "meta-llama/llama-4-scout-17b-16e-instruct",
+      "meta-llama/llama-guard-4-12b",
+      "llama-guard-3-8b",
+      "compound-beta-mini",
+      "llama3-70b-8192",
+      "playai-tts",
+      "playai-tts-arabic"
+    ],
+    "timestamp": "2025-05-17T22:23:41.856865"
+  }
+}

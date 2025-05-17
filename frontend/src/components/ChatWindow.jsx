@@ -53,7 +53,7 @@ const ChatWindow = ({ provider, model, persona, chatHistory, setChatHistory, ret
     setChatHistory(updatedMessages);
     setInput('');
 
-    // Send message to backend for AI response
+    // Send message to backend for AI response with streaming
     try {
       const { sendMessage } = await import('../services/api.js');
       const response = await sendMessage({
@@ -81,7 +81,7 @@ const ChatWindow = ({ provider, model, persona, chatHistory, setChatHistory, ret
       } else {
         const aiResponse = {
           id: Date.now() + 1,
-          text: response.content || 'No response content',
+          text: response.text || 'No response content',
           sender: 'ai',
           timestamp: new Date().toLocaleTimeString(),
           isRetryResponse: isRetry

@@ -1,0 +1,56 @@
+Testing AI response system...
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing all providers and latest models...
+
+Testing provider: cohere, model: command-a-03-2025
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing provider: xai, model: grok-3
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing provider: deepseek, model: deepseek-chat
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing provider: alibaba, model: qwq-plus
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing provider: groq, model: llama-3.3-70b-versatile
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing provider: anthropic, model: claude-3-7-sonnet-20250219
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing provider: gemini, model: gemini-2.5-flash-preview-04-17
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing provider: mistral, model: codestral-latest
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing provider: openai, model: gpt-4o-2024-05-13
+Error: Received status code 400
+{"error":"Provider not configured"}
+
+
+Testing provider: huggingface, model: meta-llama/Llama-3.1-8B-Instruct
+Error: Received status code 400
+{"error":"Provider not configured"}
+

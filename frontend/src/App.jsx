@@ -13,14 +13,17 @@ export default function App() {
   const [textSize, setTextSize] = useState('Medium');
   const [themeColor, setThemeColor] = useState('Default');
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode;
-    setDarkMode(newDarkMode);
-    // Ensure the entire document root reflects the mode change
-    document.documentElement.className = newDarkMode ? 'dark-mode' : 'light-mode';
-    // Also update body for additional compatibility
-    document.body.className = newDarkMode ? 'dark-mode' : 'light-mode';
-  };
+const toggleDarkMode = () => {
+  const newDarkMode = !darkMode;
+  setDarkMode(newDarkMode);
+  // Ensure the entire document root reflects the mode change
+  document.documentElement.className = newDarkMode ? 'dark-mode' : 'light-mode';
+  // Also update body for additional compatibility
+  document.body.className = newDarkMode ? 'dark-mode' : 'light-mode';
+  // Ensure the body element has the correct class
+  document.body.classList.toggle('dark-mode', newDarkMode);
+  document.body.classList.toggle('light-mode', !newDarkMode);
+};
 
   const [retryTrigger, setRetryTrigger] = useState(0);
 

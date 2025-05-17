@@ -1,41 +1,45 @@
 from flask import Flask
 from flask_cors import CORS
-import os
-from dotenv import load_dotenv
+from .routes.chat import chat_bp
+from .routes.providers import providers_bp
+from .config import Config, configure_logging
+from .services.monitoring import MonitoringService
+from app.services.ai_providers.registry_singleton import provider_registry
 
-# Load environment variables
-load_dotenv()
-
-def add_root_route(app):
-    @app.route("/")
-    def root():
-        return {"message": "AI Assistant backend is running."}
-
-def create_app(config_name=None):
+def create_app(config_class=Config):
     """Create and configure the Flask application"""
     app = Flask(__name__)
-    
-    # Configure CORS
-    CORS(app, resources={r"/*": {"origins": "*"}})
-    
-    # Configure the app
-    if config_name is None:
-        config_name = os.getenv('FLASK_ENV', 'development')
-    
-    if config_name == 'development':
-        app.config.from_object('app.config.DevelopmentConfig')
-    elif config_name == 'testing':
-        app.config.from_object('app.config.TestingConfig')
-    elif config_name == 'production':
-        app.config.from_object('app.config.ProductionConfig')
-    
-    # Register root route
-    add_root_route(app)
-    
-    # Import and register blueprints
-    from app.routes.chat import chat_bp
-    app.register_blueprint(chat_bp, url_prefix='/api')
-    
-    # Additional setup can go here (database, logging, etc.)
-    
+
+    # Apply configuration
+    app.config.from_object(config_class)
+
+    # Enable CORS
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+    # Configure logging
+    configure_logging(app)
+
+    # Initialize monitoring service - commented out to avoid port conflict
+    monitoring_service = MonitoringService()
+    # monitoring_service.start_server()
+
+    # Register blueprints
+    app.register_blueprint(chat_bp, url_prefix='/api/chat')
+    app.register_blueprint(providers_bp, url_prefix='/api')
+
+    # --- Auto-register providers with API keys from .env ---
+    # (Now handled in registry_singleton.py)
+    # --- End auto-registration ---
+
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found_error(error):
+        app.logger.error(f'Not Found: {error}')
+        return {'error': 'Not found'}, 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        app.logger.error(f'Server Error: {error}')
+        return {'error': 'Internal server error'}, 500
+
     return app

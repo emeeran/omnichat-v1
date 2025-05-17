@@ -1,20 +1,32 @@
 /* App.css */
 :root {
-  --primary-color: #3B82F6;
-  --primary-dark: #2563EB;
-  --secondary-color: #64748B;
-  --accent-color: #10B981;
-  --background-light: #F9FAFB;
-  --foreground-light: #ffffff;
-  --text-light: #1E293B;
-  --border-light: #E2E8F0;
-  --background-dark: #1E293B;
-  --foreground-dark: #334155;
-  --text-dark: #F1F5F9;
-  --border-dark: #475569;
+  --primary-color: #6200EA;
+  --primary-dark: #3700B3;
+  --secondary-color: #03DAC6;
+  --accent-color: #BB86FC;
+  --background-light: #F5F5F5;
+  --foreground-light: #FFFFFF;
+  --text-light: #212121;
+  --border-light: #E0E0E0;
+  --background-dark: #121212;
+  --foreground-dark: #1E1E1E;
+  --text-dark: #E0E0E0;
+  --border-dark: #333333;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-dark: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
   --transition: all 0.2s ease-in-out;
+  --primary-color-rgb: 98, 0, 234;
+  --primary-dark-rgb: 55, 0, 179;
+  --secondary-color-rgb: 3, 218, 198;
+  --accent-color-rgb: 187, 134, 252;
+  --background-light-rgb: 245, 245, 245;
+  --foreground-light-rgb: 255, 255, 255;
+  --text-light-rgb: 33, 33, 33;
+  --border-light-rgb: 224, 224, 224;
+  --background-dark-rgb: 18, 18, 18;
+  --foreground-dark-rgb: 30, 30, 30;
+  --text-dark-rgb: 224, 224, 224;
+  --border-dark-rgb: 51, 51, 51;
 }
 
 body {
@@ -29,20 +41,20 @@ body {
 }
 
 .light-mode {
-  background-color: #FAFAFA;
-  color: #1A1A1A;
-  background-image: radial-gradient(circle at 20% 20%, rgba(var(--primary-color-rgb), 0.2) 0%, transparent 30%),
-                    radial-gradient(circle at 80% 80%, rgba(var(--primary-color-rgb), 0.15) 0%, transparent 30%),
-                    radial-gradient(circle at 40% 60%, rgba(var(--primary-color-rgb), 0.1) 0%, transparent 25%);
+  background-color: var(--background-light);
+  color: var(--text-light);
+  background-image: radial-gradient(circle at 20% 20%, rgba(var(--primary-color-rgb), 0.15) 0%, transparent 25%),
+                    radial-gradient(circle at 80% 80%, rgba(var(--primary-color-rgb), 0.1) 0%, transparent 25%),
+                    radial-gradient(circle at 40% 60%, rgba(var(--primary-color-rgb), 0.05) 0%, transparent 20%);
   transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
 }
 
 .dark-mode {
-  background-color: #121212;
-  color: #FFFFFF;
-  background-image: radial-gradient(circle at 20% 20%, rgba(var(--primary-color-rgb), 0.2) 0%, transparent 25%),
-                    radial-gradient(circle at 80% 80%, rgba(var(--primary-color-rgb), 0.15) 0%, transparent 25%),
-                    radial-gradient(circle at 40% 60%, rgba(var(--primary-color-rgb), 0.1) 0%, transparent 20%);
+  background-color: var(--background-dark);
+  color: var(--text-dark);
+  background-image: radial-gradient(circle at 20% 20%, rgba(var(--primary-color-rgb), 0.1) 0%, transparent 20%),
+                    radial-gradient(circle at 80% 80%, rgba(var(--primary-color-rgb), 0.08) 0%, transparent 20%),
+                    radial-gradient(circle at 40% 60%, rgba(var(--primary-color-rgb), 0.05) 0%, transparent 15%);
   transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
 }
 
@@ -62,13 +74,13 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
   font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
 }
 
 .theme-toggle-button:hover {
@@ -77,12 +89,12 @@ body {
 }
 
 .dark-mode .theme-toggle-button {
-  background: linear-gradient(135deg, #00a884, #008c6e);
-  box-shadow: 0 4px 12px rgba(0, 168, 132, 0.3);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
 .dark-mode .theme-toggle-button:hover {
-  box-shadow: 0 6px 16px rgba(0, 168, 132, 0.4);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.35);
 }
 
 .app-main {
@@ -104,10 +116,10 @@ body {
   max-width: 100%;
   display: flex;
   flex-direction: column;
-  background: #FFFFFF;
+  background: var(--foreground-light);
   padding: 1.5rem 1.2rem;
   border-radius: 12px;
-  border: 1px solid #E0E0E0;
+  border: 1px solid var(--border-light);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background-image: linear-gradient(145deg, rgba(var(--primary-color-rgb), 0.05), transparent);
   overflow-y: auto;
@@ -153,8 +165,8 @@ body {
 }
 
 .dark-mode .settings-sidebar {
-  background: #1E1E1E;
-  border: 1px solid #404040;
+  background: var(--foreground-dark);
+  border: 1px solid var(--border-dark);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   background-image: linear-gradient(145deg, rgba(var(--primary-color-rgb), 0.1), transparent);
   transition: background var(--transition), border var(--transition);
@@ -184,10 +196,10 @@ body {
   position: relative;
   padding: 0.8rem 1rem;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--foreground-light);
   transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+  border: 1px solid var(--border-light);
   background-image: linear-gradient(145deg, rgba(var(--primary-color-rgb), 0.1), transparent);
 }
 
@@ -210,10 +222,10 @@ body {
 }
 
 .dark-mode .settings-group {
-  background: rgba(var(--primary-color-rgb), 0.15);
-  border: 1px solid rgba(var(--primary-color-rgb), 0.3);
+  background: var(--foreground-dark);
+  border: 1px solid var(--border-dark);
   background-image: linear-gradient(145deg, rgba(var(--primary-color-rgb), 0.25), transparent);
-  color: #FFFFFF;
+  color: var(--text-dark);
 }
 
 .dark-mode .settings-group:hover {
@@ -356,7 +368,7 @@ body {
   border-top: 1px solid var(--border-light);
   text-align: center;
   font-size: 0.85rem;
-  color: var(--secondary-color);
+  color: var(--text-light);
   opacity: 0.8;
   position: sticky;
   bottom: 0;
@@ -367,6 +379,7 @@ body {
 .dark-mode .settings-footer {
   border-top: 1px solid var(--border-dark);
   background: var(--foreground-dark);
+  color: var(--text-dark);
 }
 
 .settings-footer.compact-footer {
@@ -397,10 +410,10 @@ body {
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
-  color: #FFFFFF;
+  color: var(--text-light);
   transition: color var(--transition), border-bottom var(--transition), background var(--transition), transform var(--transition), opacity var(--transition);
   border-radius: 8px 8px 0 0;
-  opacity: 0.5;
+  opacity: 0.8;
 }
 
 .tab-button:hover {
@@ -432,8 +445,8 @@ body {
 }
 
 .dark-mode .tab-button {
-  color: #FFFFFF;
-  opacity: 0.6;
+  color: var(--text-dark);
+  opacity: 0.8;
 }
 
 .dark-mode .tab-button:hover {
@@ -482,7 +495,7 @@ body {
   font-size: 0.9rem;
   font-weight: 500;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: white;
+  color: var(--text-light);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -509,14 +522,14 @@ body {
 
 .dark-mode .chat-action-btn {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: white;
+  color: var(--text-dark);
   border: none;
   background-image: none;
 }
 
 .dark-mode .chat-action-btn:hover {
   background: var(--primary-color);
-  color: white;
+  color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
 }
@@ -539,13 +552,14 @@ body {
   border: 1px solid var(--border-light);
   margin-top: 1.5rem;
   font-size: 0.85rem;
-  color: var(--secondary-color);
+  color: var(--text-light);
   box-shadow: var(--shadow);
 }
 
 .dark-mode .app-footer {
   background-color: var(--foreground-dark);
   border: 1px solid var(--border-dark);
+  color: var(--text-dark);
   box-shadow: var(--shadow-dark);
 }
 

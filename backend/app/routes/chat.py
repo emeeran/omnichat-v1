@@ -3,6 +3,7 @@ import os
 from flask import Blueprint, request, jsonify, Response, stream_with_context
 from app.utils.utils import error_response, success_response
 from app.services.ai_providers.provider_registry import ProviderRegistry
+from app.services.ai_providers.registry_singleton import provider_registry
 from app.services.model_discovery import ModelDiscoveryService
 import base64
 import json
@@ -10,8 +11,7 @@ import logging
 from io import BytesIO
 
 chat_bp = Blueprint('chat', __name__)
-provider_registry = ProviderRegistry()
-model_discovery = ModelDiscoveryService(provider_registry)
+model_discovery = ModelDiscoveryService()
 logger = logging.getLogger(__name__)
 
 @chat_bp.route('/providers', methods=['GET'])
@@ -28,11 +28,11 @@ def list_models(provider_id):
     """List available models for the given provider"""
     refresh = request.args.get('refresh', 'false').lower() == 'true'
     if refresh:
-        model_discovery.refresh_models(provider_id)
-    models = model_discovery.get_available_models(provider_id)
+        model_discovery.fetch_latest_models(provider_id)
+    models = model_discovery.get_supported_models(provider_id)
     return success_response({"models": models})
 
-@chat_bp.route('/chat/completions', methods=['POST'])
+@chat_bp.route('/completions', methods=['POST'])
 def generate_completion():
     """Generate a chat completion"""
     data = request.json
@@ -48,29 +48,29 @@ def generate_completion():
         return error_response(response["error"])
     return success_response(response)
 
-@chat_bp.route('/chat/stream', methods=['POST'])
+@chat_bp.route('/stream', methods=['POST'])
 def stream_completion():
-    """Generate a streaming chat completion"""
-    data = request.json
-    provider_id = data.get('provider')
-    model = data.get('model')
-    messages = data.get('messages', [])
-    options = data.get('options', {})
-    provider = provider_registry.get_provider(provider_id)
-    if not provider:
-        return error_response("Provider not configured")
+  """Generate a streaming chat completion"""
+  data = request.json
+  provider_id = data.get('provider')
+  model = data.get('model')
+  messages = data.get('messages', [])
+  options = data.get('options', {})
+  provider = provider_registry.get_provider(provider_id)
+  if not provider:
+    return error_response("Provider not configured")
 
-    def generate():
-        try:
-            for chunk in provider.stream_completion(messages, model, options):
-                yield chunk
-        except Exception as e:
-            logger.error(f"Error streaming response: {e}")
-            yield f"Error: {str(e)}"
+  def generate():
+    try:
+      for chunk in provider.stream_completion(messages, model, options):
+        yield chunk
+    except Exception as e:
+      logger.error(f"Error streaming response: {e}")
+      yield f"Error: {str(e)}"
 
-    return Response(stream_with_context(generate()), content_type='text/plain')
+  return Response(stream_with_context(generate()), content_type='text/plain')
 
-@chat_bp.route('/chat/upload', methods=['POST'])
+@chat_bp.route('/upload', methods=['POST'])
 def upload_file():
     """Process an uploaded file for chat context"""
     if 'file' not in request.files:

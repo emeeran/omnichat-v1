@@ -9,39 +9,60 @@ export default function ProviderModelSelector({
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+    useEffect(() => {
     const loadProviders = async () => {
       setLoading(true);
       const providersData = await fetchProviders();
       if (providersData && providersData.length > 0) {
         setProviders(providersData);
+        // Set Groq as default provider if no provider is selected
+        if (!provider) {
+          onProviderChange('groq');
+        }
       } else {
         // Fallback to static data if API call fails or returns empty
-        setProviders([
+        const fallbackProviders = [
+          { id: 'groq', name: 'Groq' },
+          { id: 'deepseek', name: 'Deepseek' },
           { id: 'openai', name: 'OpenAI' },
           { id: 'anthropic', name: 'Anthropic' },
           { id: 'google', name: 'Google' }
-        ]);
+        ];
+        setProviders(fallbackProviders);
+        // Set Groq as default provider if no provider is selected
+        if (!provider) {
+          onProviderChange('groq');
+        }
       }
       setLoading(false);
     };
     loadProviders();
   }, []);
 
-  useEffect(() => {
+    useEffect(() => {
     const loadModels = async () => {
       if (provider) {
         setLoading(true);
         const modelsData = await fetchModels(provider);
         if (modelsData && modelsData.length > 0) {
           setModels(modelsData);
-          // Set default model for OpenAI if no model is selected
-          if (provider.toLowerCase() === 'openai' && !model) {
-            onModelChange('gpt-4.1-nano-2025-04-14');
+          // Set default model for Groq
+          if (provider.toLowerCase() === 'groq' && !model) {
+            onModelChange('llama-3.1-8b-instant');
           }
         } else {
           // Fallback to static data based on provider if API call fails or returns empty
           const fallbackModels = {
+            'groq': [
+              { id: 'llama-3.1-8b-instant', name: 'LLaMA 3.1 8B Instant' },
+              { id: 'llama-3.1-70b-versatile', name: 'LLaMA 3.1 70B Versatile' },
+              { id: 'llama3-70b-8192', name: 'LLaMA 3 70B' }
+            ],
+            'deepseek': [
+              { id: 'deepseek-chat', name: 'Deepseek Chat' },
+              { id: 'deepseek-coder', name: 'Deepseek Coder' },
+              { id: 'deepseek-llm', name: 'Deepseek LLM' }
+            ],
             'openai': [
               { id: 'gpt-4.1-nano-2025-04-14', name: 'GPT-4.1 Nano (2025-04-14)' },
               { id: 'gpt-4.1-nano', name: 'GPT-4.1 Nano' },
@@ -57,9 +78,9 @@ export default function ProviderModelSelector({
             ]
           };
           setModels(fallbackModels[provider.toLowerCase()] || []);
-          // Set default model for OpenAI if no model is selected
-          if (provider.toLowerCase() === 'openai' && !model) {
-            onModelChange('gpt-4.1-nano-2025-04-14');
+          // Set default model for Groq
+          if (provider.toLowerCase() === 'groq' && !model) {
+            onModelChange('llama-3.1-8b-instant');
           }
         }
         setLoading(false);
@@ -68,7 +89,7 @@ export default function ProviderModelSelector({
       }
     };
     loadModels();
-  }, [provider, model, onModelChange]);
+  }, [provider, model, onModelChange, onProviderChange]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

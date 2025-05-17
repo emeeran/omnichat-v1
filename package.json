@@ -1,0 +1,17 @@
+{
+  "name": "omnichat-v1",
+  "version": "1.0.0",
+  "description": "A chat application with various features",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vite": "^4.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^3.0.0"
+  }
+}
